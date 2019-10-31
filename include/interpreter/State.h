@@ -2,6 +2,9 @@
 /// This file defines the State class which carries state information of
 /// the interpreter.
 
+#ifndef INT_STATE_H
+#define INT_STATE_H
+
 #include "MappedFile.h"
 #include "Stack.h"
 #include <ostream>
@@ -22,3 +25,5 @@ public:
         return pc;
     }
 };
+
+#endif // INT_STATE_H

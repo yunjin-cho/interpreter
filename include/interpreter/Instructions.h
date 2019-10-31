@@ -1,5 +1,8 @@
 /// Yunjin Cho
 
+#ifndef INT_INSTRUCTIONS_H
+#define INT_INSTRUCTIONS_H
+
 #include "State.h"
 
 enum Instructions {
@@ -54,3 +57,5 @@ enum Instructions {
 using InstructionHandler = void(*)(State&);
 
 extern InstructionHandler instructions[Instructions::Last];
+
+#endif // INT_INSTRUCTIONS_H

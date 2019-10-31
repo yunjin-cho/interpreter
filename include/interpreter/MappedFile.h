@@ -1,6 +1,9 @@
 /// Yunjin Cho
 /// The MappedFile class represents an open file from mmap.
 
+#ifndef INT_MAPPED_FILE_H
+#define INT_MAPPED_FILE_H
+
 #include <cerrno>
 #include <system_error>
 #include <fcntl.h>
@@ -21,3 +24,5 @@ public:
         return mapping;
     }
 };
+
+#endif // INT_MAPPED_FILE_H
