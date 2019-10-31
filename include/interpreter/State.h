@@ -16,6 +16,7 @@ class State {
     uint64_t pc = 0;
 
 public:
+    State(const char *name) : programText(name) {}
 
     int64_t getSP() const {
         return stack.size();
