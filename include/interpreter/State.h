@@ -10,20 +10,30 @@
 #include <ostream>
 
 class State {
-    Stack stack;
+    Stack<Data> stack;
+    int64_t sp = -1;
 
     MappedFile programText;
     uint64_t pc = 0;
 
 public:
+    State() : programText(nullptr) {}
     State(const char *name) : programText(name) {}
 
+    Stack<Data>& getStack() {
+        return stack;
+    }
+
     int64_t getSP() const {
-        return stack.size();
+        return sp;
     }
 
     uint64_t getPC() const {
         return pc;
+    }
+
+    uint8_t nextInstruction() {
+        return programText[pc++];
     }
 };
 

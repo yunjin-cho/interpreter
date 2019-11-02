@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 TEST(Stack, PushPop) {
-    Stack s;
+    Stack<Data> s;
     EXPECT_EQ(s.size(), 0);
     s.push({Type::Int, 0});
     EXPECT_EQ(s.size(), 1);
@@ -17,7 +17,7 @@ TEST(Stack, PushPop) {
 }
 
 TEST(Stack, Top) {
-    Stack s;
+    Stack<Data> s;
     EXPECT_EQ(s.size(), 0);
     EXPECT_ANY_THROW(s.top());
     s.push({Type::Int, 0});

@@ -23,31 +23,45 @@ class Data {
 public:
     Data(Type type, uint32_t data = 0) : type(type), data(data) {}
 
-    Type getType() { return type; }
-    uint32_t getData() { return data; }
+    Type getType() const { return type; }
+    uint32_t getData() const { return data; }
+
+    bool operator==(Data other) const {
+        return other.type == type && other.data == data;
+    }
+
+    bool operator>(Data other) const {
+        return other.type == type && data > other.data;
+    }
+
+    bool operator<(Data other) const {
+        return other.type == type && data < other.data;
+    }
 };
 
-class Stack : public std::vector<Data> {
-    using vec = std::vector<Data>;
+template <typename T>
+class Stack : public std::vector<T> {
+    using vec = std::vector<T>;
 
 public:
     /// Returns i from the back (0 indexed)
-    Data& top(unsigned i) {
+    T& top(unsigned i) {
         return vec::at(vec::size() - 1 - i);
     }
 
-    Data& top() {
+    T& top() {
         return top(0);
     }
 
-    Data& pop() {
-        Data& d = top();
+    T& pop() {
+        T& d = top();
         vec::pop_back();
         return d;
     }
 
-    void push(Data&& data) {
-        push_back(std::move(data));
+    Stack<T>& push(T&& t) {
+        vec::push_back(std::move(t));
+        return *this;
     }
 };
 

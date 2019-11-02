@@ -3,6 +3,8 @@
 #include "interpreter/MappedFile.h"
 
 MappedFile::MappedFile(const char* name) {
+    if (!name)
+        return;
     fd = open(name, O_RDONLY);
     if (fd == -1)
         throw std::system_error(errno, std::system_category());
@@ -15,7 +17,8 @@ MappedFile::MappedFile(const char* name) {
 }
 
 MappedFile::~MappedFile() {
-    munmap((void*)mapping, size);
+    if (mapping)
+        munmap((void*)mapping, size);
 }
 
 
