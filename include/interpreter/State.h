@@ -11,13 +11,22 @@
 
 struct State {
     Stack<Data> stack;
-    int64_t sp = -1;
+
+    std::stack<uint64_t> fpstack;
 
     MappedFile programText;
     uint64_t pc = 0;
 
     State() : programText(nullptr) {}
     State(const char *name) : programText(name) {}
+
+    int64_t sp() {
+        return stack.size() - 1;
+    }
+
+    int64_t fpsp() {
+        return fpstack.size() - 1;
+    }
 
     Stack<Data>& getStack() {
         return stack;
