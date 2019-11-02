@@ -9,14 +9,13 @@
 #include "Stack.h"
 #include <ostream>
 
-class State {
+struct State {
     Stack<Data> stack;
     int64_t sp = -1;
 
     MappedFile programText;
     uint64_t pc = 0;
 
-public:
     State() : programText(nullptr) {}
     State(const char *name) : programText(name) {}
 
@@ -24,12 +23,8 @@ public:
         return stack;
     }
 
-    int64_t getSP() const {
-        return sp;
-    }
-
-    uint64_t getPC() const {
-        return pc;
+    const char *text() {
+        return programText;
     }
 
     uint8_t nextInstruction() {
