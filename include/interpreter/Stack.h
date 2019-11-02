@@ -45,18 +45,19 @@ class Stack : public std::vector<T> {
 
 public:
     /// Returns i from the back (0 indexed)
-    T& top(unsigned i) {
+    T& top(unsigned i = 0) {
         return vec::at(vec::size() - 1 - i);
-    }
-
-    T& top() {
-        return top(0);
     }
 
     T& pop() {
         T& d = top();
         vec::pop_back();
         return d;
+    }
+
+    void pop(uint32_t count) {
+        for (int i = 0; i < count; i++)
+            vec::pop_back();
     }
 
     Stack<T>& push(T&& t) {
