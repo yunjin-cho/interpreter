@@ -51,3 +51,45 @@ TEST_F(InsT, Cmpgt) {
     instructions[Cmpgt](state);
     EXPECT_EQ(state.getStack().top().getData(), 0);
 }
+
+TEST_F(InsT, Pushc) {
+    std::ofstream outfile("pushc.txt");
+    outfile.put(45);
+    outfile.close();
+
+    State s("pushc.txt");
+    instructions[Pushc](s);
+    EXPECT_EQ(s.stack.top().getType(), Type::Char);
+    EXPECT_EQ(s.stack.top().getData(), 45);
+    remove("pushc.txt");
+}
+
+TEST_F(InsT, Pushs) {
+    short srt = 10893;
+    std::ofstream outfile("pushs.txt");
+    outfile.put(reinterpret_cast<char*>(&srt)[0]);
+    outfile.put(reinterpret_cast<char*>(&srt)[1]);
+    outfile.close();
+
+    State s("pushs.txt");
+    instructions[Pushs](s);
+    EXPECT_EQ(s.stack.top().getType(), Type::Short);
+    EXPECT_EQ(s.stack.top().getData(), srt);
+    remove("pushs.txt");
+}
+
+TEST_F(InsT, Pushi) {
+    char arr[4] = {34, 76, 98, 127};
+    std::ofstream outfile("pushi.txt");
+    outfile.put(arr[0]);
+    outfile.put(arr[1]);
+    outfile.put(arr[2]);
+    outfile.put(arr[3]);
+    outfile.close();
+
+    State s("pushi.txt");
+    instructions[Pushi](s);
+    EXPECT_EQ(s.stack.top().getType(), Type::Int);
+    EXPECT_EQ(s.stack.top().getData(), *reinterpret_cast<int*>(arr));
+    remove("pushi.txt");
+}
