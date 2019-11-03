@@ -5,6 +5,7 @@
 
 #include "State.h"
 
+void printState(State&);
 void halt(State&);
 
 enum Instructions {

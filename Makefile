@@ -13,7 +13,7 @@ OBJS = $(SRCS:%.cpp=%.o)
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-interpreter: $(OBJS) $(HEADERS)
+interpreter: $(OBJS) $(HEADERS) main.cpp
 	$(CXX) $(CXXFLAGS) $(OBJS) main.cpp -o interpreter
 
 .gtest.out: $(OBJS) $(TEST_OBJS) $(HEADERS)

@@ -242,10 +242,10 @@ TEST_F(InsT, Printc) {
     state.stream = &buf;
 
     instructions[Printc](state);
-    EXPECT_STREQ(buf.str().c_str(), "a");
+    EXPECT_STREQ(buf.str().c_str(), "a\n");
     state.stack.push({Type::Char, 'b'});
     instructions[Printc](state);
-    EXPECT_STREQ(buf.str().c_str(), "ab");
+    EXPECT_STREQ(buf.str().c_str(), "a\nb\n");
 }
 
 TEST_F(InsT, Prints) {
@@ -254,7 +254,7 @@ TEST_F(InsT, Prints) {
     state.stream = &buf;
 
     instructions[Prints](state);
-    EXPECT_STREQ(buf.str().c_str(), "45");
+    EXPECT_STREQ(buf.str().c_str(), "45\n");
 }
 
 TEST_F(InsT, Printi) {
@@ -263,7 +263,7 @@ TEST_F(InsT, Printi) {
     state.stream = &buf;
 
     instructions[Printi](state);
-    EXPECT_STREQ(buf.str().c_str(), "321087");
+    EXPECT_STREQ(buf.str().c_str(), "321087\n");
 }
 
 TEST_F(InsT, PrintiSigned) {
@@ -272,7 +272,7 @@ TEST_F(InsT, PrintiSigned) {
     state.stream = &buf;
 
     instructions[Printi](state);
-    EXPECT_STREQ(buf.str().c_str(), "-1");
+    EXPECT_STREQ(buf.str().c_str(), "-1\n");
 }
 
 TEST_F(InsT, Printf) {
@@ -282,11 +282,11 @@ TEST_F(InsT, Printf) {
     state.stream = &buf;
 
     instructions[Printf](state);
-    EXPECT_STREQ(buf.str().c_str(), "3.5");
+    EXPECT_STREQ(buf.str().c_str(), "3.5\n");
     f = 45.213;
     state.stack.push({Type::Float, *reinterpret_cast<uint32_t*>(&f)});
     instructions[Printf](state);
-    EXPECT_STREQ(buf.str().c_str(), "3.545.213");
+    EXPECT_STREQ(buf.str().c_str(), "3.5\n45.213\n");
 }
 
 TEST_F(InsT, Jmp) {
@@ -315,19 +315,21 @@ TEST_F(InsT, Call) {
 
     state.pc = 0;
     instructions[Call](state);
-    EXPECT_EQ(state.pc, 16);
+    EXPECT_EQ(state.pc, 17);
 
-    EXPECT_EQ(state.stack.size(), 0);
+    ASSERT_EQ(state.stack.size(), 1);
+    EXPECT_EQ(state.stack.top().getData(), 16);
     // TODO: More call tests
 }
 
 TEST_F(InsT, Ret) {
-    state.fpstack.push(1);
-    state.stack.push({5}).push({4}).push({3});
+    state.fpstack.push(0);
+    state.stack.push({16});
+    state.pc = 52;
 
     instructions[Ret](state);
     EXPECT_EQ(state.stack.size(), 0);
-    EXPECT_EQ(state.pc, 5);
+    EXPECT_EQ(state.pc, 16);
 }
 
 TEST_F(InsT, Popm) {
@@ -359,12 +361,23 @@ TEST_F(InsT, Popa) {
     state.stack.push({26}).push({27}).push({0});
 
     instructions[Popa](state);
-    ASSERT_EQ(state.stack.size(), 0);
+    ASSERT_EQ(state.stack.size(), 1);
+    EXPECT_EQ(state.stack.pop().getData(), 26);
 
     state.stack.push({26}).push({27}).push({1});
     instructions[Popa](state);
+    ASSERT_EQ(state.stack.size(), 2);
+    ASSERT_EQ(state.stack.pop().getData(), 27);
+    ASSERT_EQ(state.stack.top().getData(), 26);
+}
+
+TEST_F(InsT, Popa2) {
+    state.fpstack.push(0);
+    state.stack.push({16}).push({0});
+
+    instructions[Popa](state);
     ASSERT_EQ(state.stack.size(), 1);
-    ASSERT_EQ(state.stack.top().getData(), 27);
+    EXPECT_EQ(state.stack.top().getData(), 16);
 }
 
 TEST_F(InsT, Peek) {

@@ -13,14 +13,12 @@ static void printStack(StackT stack, std::ostream& os) {
         return;
     }
     
-    // Don't use reference, the Stack<T>'s use small T's.
-    auto last = stack.end()--;
-    for (auto i = stack.begin(); i != last; i++)
-        os << static_cast<uint32_t>(*i) << ' ';
-    os << static_cast<uint32_t>(*last);
+    for (int i = 0; i < stack.size() - 1; i++)
+        os << static_cast<uint32_t>(stack[i]) << ' ';
+    os << static_cast<uint32_t>(stack.back());
 }
 
-static void printState(State& s) {
+void printState(State& s) {
     s.os() << "Compile values:\nPC: " << s.pc << "\nsp: " << s.sp()
       << "\nrstack: ";
     printStack(s.stack, s.os());
@@ -81,8 +79,8 @@ static void arithmetic(State& s) {
 
 template <typename type>
 static void print(State& s) {
-    uint32_t i = s.getStack().top().getData();
-    s.os() << *reinterpret_cast<type*>(&i);
+    uint32_t i = s.getStack().pop().getData();
+    s.os() << *reinterpret_cast<type*>(&i) << '\n';
 }
 
 static void jmp(State& s) {
@@ -96,15 +94,15 @@ static void jmpc(State& s) {
 }
 
 static void call(State& s) {
-
     s.fpstack.push(s.sp() - s.stack.pop() - 1);
-    s.stack.pop();
+    //s.stack.pop();
     s.pc = s.stack.pop().getData();
 }
 
 static void ret(State& s) {
+    uint32_t new_pc = s.stack.top().getData();
     s.stack.resize(s.fpstack.pop());
-    s.pc = s.stack.pop().getData();
+    s.pc = new_pc;
 }
 
 static void popm(State& s) {
@@ -122,7 +120,7 @@ static void popa(State& s) {
     std::stack<Data> stack;
     for (int i = 0; i < data; i++)
         stack.push(s.stack.pop());
-    while (s.sp() != s.fpstack.top() - 1)
+    while (s.sp() != s.fpstack.top())
         s.stack.pop();
     for (; !stack.empty(); stack.pop())
         s.stack.push(std::move(stack.top()));
