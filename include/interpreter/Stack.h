@@ -28,6 +28,10 @@ public:
     Type getType() const { return type; }
     uint32_t getData() const { return data; }
 
+    operator uint32_t() const {
+        return data;
+    }
+
     bool operator==(Data other) const {
         return other.data == data;
     }

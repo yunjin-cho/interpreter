@@ -77,6 +77,35 @@ void ret(State& s) {
     s.pc = s.stack.pop().getData();
 }
 
+void popm(State& s) {
+    uint32_t num = s.stack.pop().getData();
+    s.stack.pop(num);
+}
+
+void popv(State& s) {
+    s.stack.at(s.fpstack.top() + s.stack.top().getData() + 1) = s.stack.top(1);
+    s.stack.pop(2);
+}
+
+void popa(State& s) {
+    uint32_t data = s.stack.pop();
+    std::stack<Data> stack;
+    for (int i = 0; i < data; i++)
+        stack.push(s.stack.pop());
+    while (s.sp() != s.fpstack.top() - 1)
+        s.stack.pop();
+    for (; !stack.empty(); stack.pop())
+        s.stack.push(std::move(stack.top()));
+
+    #if 0
+    for (int i = 0; i < s.stack.top().getData(); i++)
+        s.stack.at(s.fpstack.top() + i + 1) =
+          s.stack.at(s.sp() - s.stack.top() + i);
+    s.stack.at(s.fpstack.top() + s.stack.top()) = s.stack.top(1);
+    s.stack.resize(s.fpstack.top() + s.stack.top());
+    #endif
+}
+
 InstructionHandler instructions[Last] = {
     [Halt] = halt,
 
@@ -98,6 +127,10 @@ InstructionHandler instructions[Last] = {
     [Pushvs] = pushv<Type::Short>,
     [Pushvi] = pushv<Type::Int>,
     [Pushvf] = pushv<Type::Float>,
+
+    [Popm] = popm,
+    [Popv] = popv,
+    [Popa] = popa,
 
     [Add] = arithmetic<std::plus<Data>>,
     [Sub] = arithmetic<std::minus<Data>>,

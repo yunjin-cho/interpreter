@@ -318,3 +318,40 @@ TEST_F(InsT, Ret) {
     EXPECT_EQ(state.stack.size(), 0);
     EXPECT_EQ(state.pc, 5);
 }
+
+TEST_F(InsT, Popm) {
+    state.stack.push({1}).push({2}).push({3}).push({4}).push({1});
+
+    instructions[Popm](state);
+    EXPECT_EQ(state.stack.size(), 3);
+    EXPECT_EQ(state.stack.top().getData(), 3);
+
+    state.stack.push({2});
+    instructions[Popm](state);
+    EXPECT_EQ(state.stack.size(), 1);
+    EXPECT_EQ(state.stack.top().getData(), 1);
+}
+
+TEST_F(InsT, Popv) {
+    state.fpstack.push(0);
+    state.stack.push({1}).push({2}).push({3}).push({4}).push({1});
+
+    instructions[Popv](state);
+    ASSERT_EQ(state.stack.size(), 3);
+    EXPECT_EQ(state.stack.pop().getData(), 4);
+    EXPECT_EQ(state.stack.pop().getData(), 2);
+    EXPECT_EQ(state.stack.pop().getData(), 1);
+}
+
+TEST_F(InsT, Popa) {
+    state.fpstack.push(0);
+    state.stack.push({26}).push({27}).push({0});
+
+    instructions[Popa](state);
+    ASSERT_EQ(state.stack.size(), 0);
+
+    state.stack.push({26}).push({27}).push({1});
+    instructions[Popa](state);
+    ASSERT_EQ(state.stack.size(), 1);
+    ASSERT_EQ(state.stack.top().getData(), 27);
+}
