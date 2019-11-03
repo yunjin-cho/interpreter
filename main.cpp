@@ -7,7 +7,10 @@ int main(int argc, char **argv) {
     State state(argv[1]);
     for (uint8_t ins; (ins = state.nextInstruction()) != Halt; )
         instructions[ins](state);
+    
+    // pc gets increased from nextInstruction so it is one past after halt
+    // so put it down one to output correctly.
     state.pc--;
-    state.os() << '\n';
+    std::cout << '\n';
     halt(state);
 }
