@@ -37,6 +37,22 @@ public:
     bool operator<(Data other) const {
         return other.type == type && data < other.data;
     }
+
+    Data operator+(Data other) const {
+        return {type, data + other.data};
+    }
+
+    Data operator-(Data other) const {
+        return {type, data - other.data};
+    }
+
+    Data operator*(Data other) const {
+        return {type, data * other.data};
+    }
+
+    Data operator/(Data other) const {
+        return {type, data / other.data};
+    }
 };
 
 template <typename T>

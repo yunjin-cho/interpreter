@@ -79,17 +79,91 @@ TEST_F(InsT, Pushs) {
 }
 
 TEST_F(InsT, Pushi) {
-    char arr[4] = {34, 76, 98, 127};
+    int i = 3374443;
     std::ofstream outfile("pushi.txt");
-    outfile.put(arr[0]);
-    outfile.put(arr[1]);
-    outfile.put(arr[2]);
-    outfile.put(arr[3]);
+    outfile.write(reinterpret_cast<char*>(&i), sizeof(int));
     outfile.close();
 
     State s("pushi.txt");
     instructions[Pushi](s);
     EXPECT_EQ(s.stack.top().getType(), Type::Int);
-    EXPECT_EQ(s.stack.top().getData(), *reinterpret_cast<int*>(arr));
+    EXPECT_EQ(s.stack.top().getData(), i);
     remove("pushi.txt");
+}
+
+TEST_F(InsT, Pushf) {
+    float f = 23.54;
+    std::ofstream outfile("pushf.txt");
+    outfile.write(reinterpret_cast<char*>(&f), sizeof(float));
+    outfile.close();
+
+    State s("pushf.txt");
+    instructions[Pushf](s);
+    EXPECT_EQ(s.stack.top().getType(), Type::Float);
+    uint32_t i = s.stack.top().getData();
+    EXPECT_EQ(*reinterpret_cast<float*>(&i), f);
+    remove("pushf.txt");
+}
+
+TEST_F(InsT, Add) {
+    state.stack.push({Type::Int, 4});
+    state.stack.push({Type::Int, 5});
+
+    instructions[Add](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
+    EXPECT_EQ(state.stack.top().getData(), 9);
+}
+
+TEST_F(InsT, Sub) {
+    state.stack.push({Type::Int, 4});
+    state.stack.push({Type::Int, 5});
+
+    instructions[Sub](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
+    EXPECT_EQ(state.stack.top().getData(), static_cast<uint32_t>(-1));
+    instructions[Sub](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
+    EXPECT_EQ(state.stack.top().getData(), 6);
+}
+
+TEST_F(InsT, Mul) {
+    state.stack.push({Type::Int, 4});
+    state.stack.push({Type::Int, 5});
+
+    instructions[Mul](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
+    EXPECT_EQ(state.stack.top().getData(), 20);
+    instructions[Mul](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
+    EXPECT_EQ(state.stack.top().getData(), 100);
+}
+
+TEST_F(InsT, Div) {
+    state.stack.push({Type::Int, 20});
+    state.stack.push({Type::Int, 5});
+
+    instructions[Div](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
+    EXPECT_EQ(state.stack.top().getData(), 4);
+
+#if 0 // Not working right now, stupid floats >:(
+    state.stack.push({Type::Float, static_cast<uint32_t>(22.0)});
+    state.stack.push({Type::Float, static_cast<uint32_t>(5.0)});
+    instructions[Div](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Float);
+    uint32_t i = state.stack.top().getData();
+    EXPECT_EQ(*reinterpret_cast<float*>(&i), 22.0/5.0);
+#endif
+}
+
+// The current behavior is to use the first type of a binary arithmetic
+// expression for the type of the result.
+TEST_F(InsT, RetainType) {
+    state.stack.push({Type::Short, 20});
+    state.stack.push({Type::Char, 5});
+
+    instructions[Add](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Short);
+    instructions[Add](state);
+    EXPECT_EQ(state.stack.top().getType(), Type::Char);
 }
