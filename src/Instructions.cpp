@@ -19,7 +19,8 @@ struct eq {
 template <class comparator>
 void cmp(State& s) {
     Stack<Data>& stack = s.getStack();
-    stack.push({Type::Int, comparator()(stack.top(1), stack.top())});
+    Data right = stack.pop(), left = stack.pop();
+    stack.push({Type::Int, comparator()(left, right)});
 }
 
 template <typename IntType, Type type>
@@ -38,7 +39,8 @@ void pushf(State& s) {
 template <typename operation>
 void arithmetic(State& s) {
     Stack<Data>& stack = s.getStack();
-    stack.push(operation()(stack.top(1), stack.top()));
+    Data right = stack.pop(), left = stack.pop();
+    stack.push(operation()(left, right));
 }
 
 template <typename type>

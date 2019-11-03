@@ -26,34 +26,42 @@ TEST_F(InsT, Halt) {
 }
 
 TEST_F(InsT, Cmpe) {
-    state.getStack().push({Type::Int, 5}).push({Type::Int, 5});
+    state.stack.push({Type::Int, 5}).push({Type::Int, 5}).push({Type::Int, 5});
     instructions[Cmpe](state);
-    EXPECT_EQ(state.getStack().top().getData(), 1);
+    EXPECT_EQ(state.stack.top().getData(), 1);
     instructions[Cmpe](state);
-    EXPECT_EQ(state.getStack().top().getData(), 0);
+    EXPECT_EQ(state.stack.top().getData(), 0);
 
     state.stack.push({Type::Short, 5}).push({Type::Int, 5});
     instructions[Cmpe](state);
-    EXPECT_EQ(state.getStack().top().getData(), 1);
+    EXPECT_EQ(state.stack.top().getData(), 1);
+}
+
+TEST_F(InsT, CmpPops) {
+    state.stack.push({Type::Int, 5}).push({Type::Int, 5});
+    EXPECT_EQ(state.stack.size(), 2);
+    instructions[Cmpe](state);
+    EXPECT_EQ(state.stack.size(), 1);
 }
 
 TEST_F(InsT, Cmlt) {
-    state.getStack().push({Type::Int, 5}).push({Type::Int, 4});
+    state.stack.push({Type::Int, 5}).push({Type::Int, 4});
     instructions[Cmplt](state);
-    EXPECT_EQ(state.getStack().top().getData(), 0);
-    state.getStack().push({Type::Int, 3});
+    EXPECT_EQ(state.stack.top().getData(), 0);
+    state.stack.push({Type::Int, 3});
     instructions[Cmplt](state);
-    EXPECT_EQ(state.getStack().top().getData(), 1);
+    EXPECT_EQ(state.stack.top().getData(), 1);
 }
 
 TEST_F(InsT, Cmpgt) {
-    state.getStack().push({Type::Int, 6}).push({Type::Int, 5});
+    state.stack.push({Type::Int, 8}).push({Type::Int, 7}).push({Type::Int, 0});
     instructions[Cmpgt](state);
-    EXPECT_EQ(state.getStack().top().getData(), 1);
+    EXPECT_EQ(state.stack.top().getData(), 1);
     instructions[Cmpgt](state);
-    EXPECT_EQ(state.getStack().top().getData(), 1);
+    EXPECT_EQ(state.stack.top().getData(), 1);
+    state.stack.push({Type::Int, 5});
     instructions[Cmpgt](state);
-    EXPECT_EQ(state.getStack().top().getData(), 0);
+    EXPECT_EQ(state.stack.top().getData(), 0);
 }
 
 TEST_F(InsT, Pushc) {
@@ -125,9 +133,11 @@ TEST_F(InsT, Sub) {
     instructions[Sub](state);
     EXPECT_EQ(state.stack.top().getType(), Type::Int);
     EXPECT_EQ(state.stack.top().getData(), static_cast<uint32_t>(-1));
+    EXPECT_EQ(state.stack.size(), 1);
+    state.stack.push({Type::Int, 4});
     instructions[Sub](state);
     EXPECT_EQ(state.stack.top().getType(), Type::Int);
-    EXPECT_EQ(state.stack.top().getData(), 6);
+    EXPECT_EQ(state.stack.top().getData(), -5);
 }
 
 TEST_F(InsT, Mul) {
@@ -137,6 +147,8 @@ TEST_F(InsT, Mul) {
     instructions[Mul](state);
     EXPECT_EQ(state.stack.top().getType(), Type::Int);
     EXPECT_EQ(state.stack.top().getData(), 20);
+    EXPECT_EQ(state.stack.size(), 1);
+    state.stack.push({Type::Int, 5});
     instructions[Mul](state);
     EXPECT_EQ(state.stack.top().getType(), Type::Int);
     EXPECT_EQ(state.stack.top().getData(), 100);
@@ -168,8 +180,13 @@ TEST_F(InsT, RetainType) {
 
     instructions[Add](state);
     EXPECT_EQ(state.stack.top().getType(), Type::Short);
+    EXPECT_EQ(state.stack.size(), 1);
+    state.stack.push({Type::Char, 3});
+    state.stack.push({Type::Float, 3});
+    EXPECT_EQ(state.stack.size(), 3);
     instructions[Add](state);
     EXPECT_EQ(state.stack.top().getType(), Type::Char);
+    EXPECT_EQ(state.stack.size(), 2);
 }
 
 TEST_F(InsT, Printc) {
