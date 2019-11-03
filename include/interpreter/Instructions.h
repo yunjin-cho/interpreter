@@ -5,6 +5,8 @@
 
 #include "State.h"
 
+void halt(State&);
+
 enum Instructions {
     Halt = 0,
 

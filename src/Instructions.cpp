@@ -4,9 +4,34 @@
 #include "interpreter/State.h"
 #include <functional>
 #include <cstdlib>
+#include <iostream>
+
+template <typename StackT>
+static void printStack(StackT stack, std::ostream& os) {
+    if (stack.empty()) {
+        os << "empty";
+        return;
+    }
+    
+    // Don't use reference, the Stack<T>'s use small T's.
+    auto last = stack.end()--;
+    for (auto i = stack.begin(); i != last; i++)
+        os << static_cast<uint32_t>(*i) << ' ';
+    os << static_cast<uint32_t>(*last);
+}
 
 void halt(State& s) {
-    exit(0);
+    s.os() << "Compile values:\nPC: " << s.pc << "\nsp: " << s.sp()
+      << "\nrstack: ";
+    printStack(s.stack, s.os());
+    s.os() << "\nfpsp: " << s.fpsp() << "\nfpstack: ";
+    printStack(s.fpstack, s.os());
+    s.os() << '\n';
+    std::exit(0);
+}
+
+static void bad_halt(State&) {
+    throw std::invalid_argument("Should not call halt from instruction table");
 }
 
 template <typename T>
@@ -99,7 +124,7 @@ void popa(State& s) {
 }
 
 InstructionHandler instructions[Last] = {
-    [Halt] = halt,
+    [Halt] = bad_halt,
 
     [Cmpe] = cmp<eq<Data>>,
     [Cmplt] = cmp<std::less<Data>>,

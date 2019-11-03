@@ -22,7 +22,11 @@ public:
 };
 
 TEST_F(InsT, Halt) {
-    EXPECT_EXIT(instructions[Halt](state), ::testing::ExitedWithCode(0), "");
+    std::ostringstream s;
+    state.stream = &s;
+    EXPECT_EXIT(halt(state), ::testing::ExitedWithCode(0), ".*");
+    //EXPECT_STREQ(s.str().c_str(), "Compile values\nPC: 0\nsp: -1\nrstack: "
+    //  "empty\nfpsp: -1\nfpstack: empty\n");
 }
 
 TEST_F(InsT, Cmpe) {
