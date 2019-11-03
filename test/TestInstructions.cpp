@@ -167,3 +167,56 @@ TEST_F(InsT, RetainType) {
     instructions[Add](state);
     EXPECT_EQ(state.stack.top().getType(), Type::Char);
 }
+
+TEST_F(InsT, Printc) {
+    state.stack.push({Type::Char, 'a'});
+    std::stringstream buf;
+    state.stream = &buf;
+
+    instructions[Printc](state);
+    EXPECT_STREQ(buf.str().c_str(), "a");
+    state.stack.push({Type::Char, 'b'});
+    instructions[Printc](state);
+    EXPECT_STREQ(buf.str().c_str(), "ab");
+}
+
+TEST_F(InsT, Prints) {
+    state.stack.push({Type::Short, 45});
+    std::stringstream buf;
+    state.stream = &buf;
+
+    instructions[Prints](state);
+    EXPECT_STREQ(buf.str().c_str(), "45");
+}
+
+TEST_F(InsT, Printi) {
+    state.stack.push({Type::Int, 321087});
+    std::stringstream buf;
+    state.stream = &buf;
+
+    instructions[Printi](state);
+    EXPECT_STREQ(buf.str().c_str(), "321087");
+}
+
+TEST_F(InsT, PrintiSigned) {
+    state.stack.push({Type::Int, UINT32_MAX});
+    std::stringstream buf;
+    state.stream = &buf;
+
+    instructions[Printi](state);
+    EXPECT_STREQ(buf.str().c_str(), "-1");
+}
+
+TEST_F(InsT, Printf) {
+    float f = 3.5;
+    state.stack.push({Type::Float, *reinterpret_cast<uint32_t*>(&f)});
+    std::ostringstream buf;
+    state.stream = &buf;
+
+    instructions[Printf](state);
+    EXPECT_STREQ(buf.str().c_str(), "3.5");
+    f = 45.213;
+    state.stack.push({Type::Float, *reinterpret_cast<uint32_t*>(&f)});
+    instructions[Printf](state);
+    EXPECT_STREQ(buf.str().c_str(), "3.545.213");
+}

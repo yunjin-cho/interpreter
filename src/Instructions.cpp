@@ -41,6 +41,12 @@ void arithmetic(State& s) {
     stack.push(operation()(stack.top(1), stack.top()));
 }
 
+template <typename type>
+void print(State& s) {
+    uint32_t i = s.getStack().top().getData();
+    s.os() << *reinterpret_cast<type*>(&i);
+}
+
 InstructionHandler instructions[Last] = {
     [Halt] = halt,
 
@@ -57,4 +63,9 @@ InstructionHandler instructions[Last] = {
     [Sub] = arithmetic<std::minus<Data>>,
     [Mul] = arithmetic<std::multiplies<Data>>,
     [Div] = arithmetic<std::divides<Data>>,
+
+    [Printc] = print<char>,
+    [Prints] = print<short>,
+    [Printi] = print<int>,
+    [Printf] = print<float>
 };

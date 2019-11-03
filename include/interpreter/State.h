@@ -7,7 +7,8 @@
 
 #include "MappedFile.h"
 #include "Stack.h"
-#include <ostream>
+#include <stack>
+#include <iostream>
 
 struct State {
     Stack<Data> stack;
@@ -17,8 +18,14 @@ struct State {
     MappedFile programText;
     uint64_t pc = 0;
 
+    std::ostream* stream = &std::cout;
+
     State() : programText(nullptr) {}
     State(const char *name) : programText(name) {}
+
+    std::ostream& os() {
+        return *stream;
+    }
 
     int64_t sp() {
         return stack.size() - 1;
