@@ -96,14 +96,6 @@ void popa(State& s) {
         s.stack.pop();
     for (; !stack.empty(); stack.pop())
         s.stack.push(std::move(stack.top()));
-
-    #if 0
-    for (int i = 0; i < s.stack.top().getData(); i++)
-        s.stack.at(s.fpstack.top() + i + 1) =
-          s.stack.at(s.sp() - s.stack.top() + i);
-    s.stack.at(s.fpstack.top() + s.stack.top()) = s.stack.top(1);
-    s.stack.resize(s.fpstack.top() + s.stack.top());
-    #endif
 }
 
 InstructionHandler instructions[Last] = {
