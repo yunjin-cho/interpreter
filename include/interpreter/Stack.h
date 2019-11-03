@@ -27,15 +27,15 @@ public:
     uint32_t getData() const { return data; }
 
     bool operator==(Data other) const {
-        return other.type == type && other.data == data;
+        return other.data == data;
     }
 
     bool operator>(Data other) const {
-        return other.type == type && data > other.data;
+        return data > other.data;
     }
 
     bool operator<(Data other) const {
-        return other.type == type && data < other.data;
+        return data < other.data;
     }
 
     Data operator+(Data other) const {

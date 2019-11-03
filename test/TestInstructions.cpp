@@ -31,6 +31,10 @@ TEST_F(InsT, Cmpe) {
     EXPECT_EQ(state.getStack().top().getData(), 1);
     instructions[Cmpe](state);
     EXPECT_EQ(state.getStack().top().getData(), 0);
+
+    state.stack.push({Type::Short, 5}).push({Type::Int, 5});
+    instructions[Cmpe](state);
+    EXPECT_EQ(state.getStack().top().getData(), 1);
 }
 
 TEST_F(InsT, Cmlt) {
