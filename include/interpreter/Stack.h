@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <vector>
 #include <utility>
+#include <stdexcept>
 
 enum class Type : uint32_t {
     Char,
@@ -21,6 +22,7 @@ class Data {
     uint32_t data;
 
 public:
+    Data(uint32_t data = 0) : type(Type::Int), data(data) {}
     Data(Type type, uint32_t data = 0) : type(type), data(data) {}
 
     Type getType() const { return type; }
@@ -79,6 +81,12 @@ public:
     Stack<T>& push(T&& t) {
         vec::push_back(std::move(t));
         return *this;
+    }
+
+    void resize(uint64_t new_size) {
+        if (new_size >= vec::size())
+            throw std::invalid_argument("Cannot resize to be larger");
+        vec::resize(new_size);
     }
 };
 

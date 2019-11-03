@@ -49,12 +49,38 @@ void print(State& s) {
     s.os() << *reinterpret_cast<type*>(&i);
 }
 
+void jmp(State& s) {
+    s.pc = s.stack.pop().getData();
+}
+
+void jmpc(State& s) {
+    if (s.stack.top(1).getData())
+        s.pc = s.stack.top().getData();
+    s.stack.pop(2);
+}
+
+void call(State& s) {
+    s.fpstack.push(s.sp() - s.stack.top().getData() - 1);
+    s.stack.pop();
+    s.pc = s.stack.pop().getData();
+}
+
+void ret(State& s) {
+    s.stack.resize(s.fpstack.pop());
+    s.pc = s.stack.pop().getData();
+}
+
 InstructionHandler instructions[Last] = {
     [Halt] = halt,
 
     [Cmpe] = cmp<eq<Data>>,
     [Cmplt] = cmp<std::less<Data>>,
     [Cmpgt] = cmp<std::greater<Data>>,
+
+    [Jmp] = jmp,
+    [Jmpc] = jmpc,
+    [Call] = call,
+    [Ret] = ret,
 
     [Pushc] = push<uint8_t, Type::Char>,
     [Pushs] = push<uint16_t, Type::Short>,

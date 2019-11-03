@@ -13,7 +13,7 @@
 struct State {
     Stack<Data> stack;
 
-    std::stack<uint64_t> fpstack;
+    Stack<uint64_t> fpstack;
 
     MappedFile programText;
     uint64_t pc = 0;

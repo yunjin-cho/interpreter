@@ -241,3 +241,44 @@ TEST_F(InsT, Printf) {
     instructions[Printf](state);
     EXPECT_STREQ(buf.str().c_str(), "3.545.213");
 }
+
+TEST_F(InsT, Jmp) {
+    state.stack.push({Type::Int, 0});
+
+    instructions[Jmp](state);
+    EXPECT_EQ(state.stack.size(), 0);
+    EXPECT_EQ(state.pc, 0);
+}
+
+TEST_F(InsT, Jmpc) {
+    state.stack.push({Type::Int, 1}).push({Type::Int, 100});
+
+    instructions[Jmpc](state);
+    EXPECT_EQ(state.stack.size(), 0);
+    EXPECT_EQ(state.pc, 100);
+
+    state.stack.push({Type::Int, 0}).push({Type::Int, 30});
+    instructions[Jmpc](state);
+    EXPECT_EQ(state.stack.size(), 0);
+    EXPECT_EQ(state.pc, 100);
+}
+
+TEST_F(InsT, Call) {
+    state.stack.push({16}).push({17}).push({1});
+
+    instructions[Call](state);
+    EXPECT_EQ(state.pc, 17);
+
+    EXPECT_EQ(state.fpstack.top(), 0);
+    EXPECT_EQ(state.stack.size(), 1);
+    // TODO: More call tests
+}
+
+TEST_F(InsT, Ret) {
+    state.fpstack.push(1);
+    state.stack.push({5}).push({4}).push({3});
+
+    instructions[Ret](state);
+    EXPECT_EQ(state.stack.size(), 0);
+    EXPECT_EQ(state.pc, 5);
+}
