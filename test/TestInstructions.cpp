@@ -117,6 +117,42 @@ TEST_F(InsT, Pushf) {
     remove("pushf.txt");
 }
 
+TEST_F(InsT, Pushvc) {
+    state.fpstack.push(0);
+    state.stack.push({17}).push({13}).push({0});
+    instructions[Pushvc](state);
+    EXPECT_EQ(state.stack.size(), 3);
+    EXPECT_EQ(state.stack.top().getType(), Type::Char);
+    EXPECT_EQ(state.stack.pop().getData(), 13);
+    EXPECT_EQ(state.stack.pop().getData(), 13);
+    EXPECT_EQ(state.stack.pop().getData(), 17);
+    ASSERT_EQ(state.stack.size(), 0);
+}
+
+TEST_F(InsT, Pushvs) {
+    state.fpstack.push(0);
+    state.stack.push({17}).push({13}).push({0});
+    instructions[Pushvs](state);
+    EXPECT_EQ(state.stack.size(), 3);
+    EXPECT_EQ(state.stack.top().getType(), Type::Short);
+}
+
+TEST_F(InsT, Pushvi) {
+    state.fpstack.push(0);
+    state.stack.push({17}).push({13}).push({0});
+    instructions[Pushvi](state);
+    EXPECT_EQ(state.stack.size(), 3);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
+}
+
+TEST_F(InsT, Pushvf) {
+    state.fpstack.push(0);
+    state.stack.push({17}).push({13}).push({0});
+    instructions[Pushvf](state);
+    EXPECT_EQ(state.stack.size(), 3);
+    EXPECT_EQ(state.stack.top().getType(), Type::Float);
+}
+
 TEST_F(InsT, Add) {
     state.stack.push({Type::Int, 4});
     state.stack.push({Type::Int, 5});

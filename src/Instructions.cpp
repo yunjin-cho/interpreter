@@ -36,6 +36,13 @@ void pushf(State& s) {
     s.stack.push({Type::Float, *reinterpret_cast<uint32_t*>(&f)});
 }
 
+template <Type type>
+void pushv(State& s) {
+    uint32_t d = s.stack.at(s.fpstack.top() + s.stack.top().getData() + 1).getData();
+    s.stack.pop();
+    s.stack.push({type, d});
+}
+
 template <typename operation>
 void arithmetic(State& s) {
     Stack<Data>& stack = s.getStack();
@@ -86,6 +93,11 @@ InstructionHandler instructions[Last] = {
     [Pushs] = push<uint16_t, Type::Short>,
     [Pushi] = push<uint32_t, Type::Int>,
     [Pushf] = pushf,
+    
+    [Pushvc] = pushv<Type::Char>,
+    [Pushvs] = pushv<Type::Short>,
+    [Pushvi] = pushv<Type::Int>,
+    [Pushvf] = pushv<Type::Float>,
 
     [Add] = arithmetic<std::plus<Data>>,
     [Sub] = arithmetic<std::minus<Data>>,
