@@ -123,6 +123,12 @@ static void popa(State& s) {
         s.stack.push(std::move(stack.top()));
 }
 
+static void peek(State& s) {
+    s.stack.at(s.fpstack.top() + s.stack.top(1) + 1)
+      = s.stack.at(s.fpstack.top() + s.stack.top() + 1);
+    s.stack.pop(2);
+}
+
 InstructionHandler instructions[Last] = {
     [Halt] = bad_halt,
 
@@ -148,6 +154,11 @@ InstructionHandler instructions[Last] = {
     [Popm] = popm,
     [Popv] = popv,
     [Popa] = popa,
+
+    [Peekc] = peek,
+    [Peeks] = peek,
+    [Peeki] = peek,
+    [Peekf] = peek,
 
     [Add] = arithmetic<std::plus<Data>>,
     [Sub] = arithmetic<std::minus<Data>>,

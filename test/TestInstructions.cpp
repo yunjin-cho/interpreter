@@ -359,3 +359,14 @@ TEST_F(InsT, Popa) {
     ASSERT_EQ(state.stack.size(), 1);
     ASSERT_EQ(state.stack.top().getData(), 27);
 }
+
+TEST_F(InsT, Peek) {
+    state.fpstack.push(0);
+    state.stack.push({34}).push({3424}).push({3}).push({0}).push({1});
+
+    instructions[Peekc](state);
+    ASSERT_EQ(state.stack.size(), 3);
+    ASSERT_EQ(state.stack.pop().getData(), 3);
+    ASSERT_EQ(state.stack.pop().getData(), 3);
+    ASSERT_EQ(state.stack.pop().getData(), 34);
+}
