@@ -129,6 +129,12 @@ static void peek(State& s) {
     s.stack.pop(2);
 }
 
+static void poke(State& s) {
+    s.stack.at(s.fpstack.top() + s.stack.top() + 1)
+      = s.stack.at(s.fpstack.top() + s.stack.top(1) + 1);
+    s.stack.pop(2);
+}
+
 InstructionHandler instructions[Last] = {
     [Halt] = bad_halt,
 
@@ -159,6 +165,11 @@ InstructionHandler instructions[Last] = {
     [Peeks] = peek,
     [Peeki] = peek,
     [Peekf] = peek,
+
+    [Pokec] = poke,
+    [Pokes] = poke,
+    [Pokei] = poke,
+    [Pokef] = poke,
 
     [Add] = arithmetic<std::plus<Data>>,
     [Sub] = arithmetic<std::minus<Data>>,

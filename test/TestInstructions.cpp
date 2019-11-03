@@ -370,3 +370,14 @@ TEST_F(InsT, Peek) {
     ASSERT_EQ(state.stack.pop().getData(), 3);
     ASSERT_EQ(state.stack.pop().getData(), 34);
 }
+
+TEST_F(InsT, Poke) {
+    state.fpstack.push(0);
+    state.stack.push({34}).push({3424}).push({3}).push({0}).push({1});
+
+    instructions[Pokec](state);
+    ASSERT_EQ(state.stack.size(), 3);
+    ASSERT_EQ(state.stack.pop().getData(), 3424);
+    ASSERT_EQ(state.stack.pop().getData(), 3424);
+    ASSERT_EQ(state.stack.pop().getData(), 34);
+}
