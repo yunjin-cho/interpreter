@@ -16,7 +16,7 @@ struct State {
     Stack<uint64_t> fpstack;
 
     MappedFile programText;
-    uint64_t pc = 0;
+    uint64_t pc = -1;
 
     std::ostream* stream = &std::cout;
 

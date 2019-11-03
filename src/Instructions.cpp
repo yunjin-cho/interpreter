@@ -20,13 +20,17 @@ static void printStack(StackT stack, std::ostream& os) {
     os << static_cast<uint32_t>(*last);
 }
 
-void halt(State& s) {
+static void printState(State& s) {
     s.os() << "Compile values:\nPC: " << s.pc << "\nsp: " << s.sp()
       << "\nrstack: ";
     printStack(s.stack, s.os());
     s.os() << "\nfpsp: " << s.fpsp() << "\nfpstack: ";
     printStack(s.fpstack, s.os());
     s.os() << '\n';
+}
+
+void halt(State& s) {
+    printState(s);
     std::exit(0);
 }
 
@@ -92,7 +96,8 @@ static void jmpc(State& s) {
 }
 
 static void call(State& s) {
-    s.fpstack.push(s.sp() - s.stack.top().getData() - 1);
+
+    s.fpstack.push(s.sp() - s.stack.pop() - 1);
     s.stack.pop();
     s.pc = s.stack.pop().getData();
 }

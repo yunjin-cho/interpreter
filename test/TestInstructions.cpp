@@ -74,6 +74,7 @@ TEST_F(InsT, Pushc) {
     outfile.close();
 
     State s("pushc.txt");
+    s.pc = 0;
     instructions[Pushc](s);
     EXPECT_EQ(s.stack.top().getType(), Type::Char);
     EXPECT_EQ(s.stack.top().getData(), 45);
@@ -88,6 +89,7 @@ TEST_F(InsT, Pushs) {
     outfile.close();
 
     State s("pushs.txt");
+    s.pc = 0;
     instructions[Pushs](s);
     EXPECT_EQ(s.stack.top().getType(), Type::Short);
     EXPECT_EQ(s.stack.top().getData(), srt);
@@ -101,6 +103,7 @@ TEST_F(InsT, Pushi) {
     outfile.close();
 
     State s("pushi.txt");
+    s.pc = 0;
     instructions[Pushi](s);
     EXPECT_EQ(s.stack.top().getType(), Type::Int);
     EXPECT_EQ(s.stack.top().getData(), i);
@@ -114,6 +117,7 @@ TEST_F(InsT, Pushf) {
     outfile.close();
 
     State s("pushf.txt");
+    s.pc = 0;
     instructions[Pushf](s);
     EXPECT_EQ(s.stack.top().getType(), Type::Float);
     uint32_t i = s.stack.top().getData();
@@ -124,6 +128,7 @@ TEST_F(InsT, Pushf) {
 TEST_F(InsT, Pushvc) {
     state.fpstack.push(0);
     state.stack.push({17}).push({13}).push({0});
+    state.pc = 0;
     instructions[Pushvc](state);
     EXPECT_EQ(state.stack.size(), 3);
     EXPECT_EQ(state.stack.top().getType(), Type::Char);
@@ -136,6 +141,7 @@ TEST_F(InsT, Pushvc) {
 TEST_F(InsT, Pushvs) {
     state.fpstack.push(0);
     state.stack.push({17}).push({13}).push({0});
+    state.pc = 0;
     instructions[Pushvs](state);
     EXPECT_EQ(state.stack.size(), 3);
     EXPECT_EQ(state.stack.top().getType(), Type::Short);
@@ -144,6 +150,7 @@ TEST_F(InsT, Pushvs) {
 TEST_F(InsT, Pushvi) {
     state.fpstack.push(0);
     state.stack.push({17}).push({13}).push({0});
+    state.pc = 0;
     instructions[Pushvi](state);
     EXPECT_EQ(state.stack.size(), 3);
     EXPECT_EQ(state.stack.top().getType(), Type::Int);
@@ -306,11 +313,11 @@ TEST_F(InsT, Jmpc) {
 TEST_F(InsT, Call) {
     state.stack.push({16}).push({17}).push({1});
 
+    state.pc = 0;
     instructions[Call](state);
-    EXPECT_EQ(state.pc, 17);
+    EXPECT_EQ(state.pc, 16);
 
-    EXPECT_EQ(state.fpstack.top(), 0);
-    EXPECT_EQ(state.stack.size(), 1);
+    EXPECT_EQ(state.stack.size(), 0);
     // TODO: More call tests
 }
 
