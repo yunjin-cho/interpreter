@@ -10,6 +10,8 @@ CXXFLAGS = -Wall -Iinclude -std=c++14 -g
 
 OBJS = $(SRCS:%.cpp=%.o)
 
+all: interpreter
+
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 

@@ -6,16 +6,36 @@
 #include <cstdlib>
 #include <iostream>
 
-template <typename StackT>
-static void printStack(StackT stack, std::ostream& os) {
+static void printStack(Stack<Data> stack, std::ostream& os) {
     if (stack.empty()) {
         os << "empty";
         return;
     }
+
+    auto printData = [&](Data d) {
+        if (d.getType() == Type::Float) {
+            os << d.getFloat();
+        } else {
+            os << static_cast<uint32_t>(d);
+        }
+    };
     
+    for (int i = 0; i < stack.size() - 1; i++) {
+        printData({stack[i]});
+        os << ' ';
+    }
+    printData(stack.back());
+}
+
+static void printStack(Stack<uint64_t> stack, std::ostream& os) {
+    if (stack.empty()) {
+        os << "empty";
+        return;
+    }
+
     for (int i = 0; i < stack.size() - 1; i++)
-        os << static_cast<uint32_t>(stack[i]) << ' ';
-    os << static_cast<uint32_t>(stack.back());
+        os << stack[i] << ' ';
+    os << stack.back();
 }
 
 void printState(State& s) {
@@ -60,7 +80,9 @@ static void push(State& s) {
 static void pushf(State& s) {
     float f = *reinterpret_cast<const float*>(s.text() + s.pc);
     s.pc += sizeof(float);
-    s.stack.push({Type::Float, *reinterpret_cast<uint32_t*>(&f)});
+    Data d(Type::Float, 0);
+    d.setFloat(f);
+    s.stack.push(std::move(d));
 }
 
 template <Type type>
@@ -70,17 +92,43 @@ static void pushv(State& s) {
     s.stack.push({type, d});
 }
 
-template <typename operation>
+void pushvf(State& s) {
+    if (s.stack.top().getType() == Type::Float) {
+        float f = s.stack.at(s.fpstack.top() + s.stack.top().getData() + 1).getFloat();
+        s.stack.pop();
+        Data d(Type::Float, 0);
+        d.setFloat(f);
+        s.stack.push(std::move(d));
+    } else {
+        pushv<Type::Int>(s);
+    }
+}
+
+template <typename fo, typename no>
 static void arithmetic(State& s) {
     Stack<Data>& stack = s.getStack();
     Data right = stack.pop(), left = stack.pop();
-    stack.push(operation()(left, right));
+    if (right.getType() == Type::Float || left.getType() == Type::Float) {
+        stack.push(fo()(left.getFloat(), right.getFloat()));
+    } else {
+        stack.push({left.getType(), no()(left.getData(), right.getData())});
+    }
 }
 
 template <typename type>
 static void print(State& s) {
     uint32_t i = s.getStack().pop().getData();
     s.os() << *reinterpret_cast<type*>(&i) << '\n';
+}
+
+static void printf(State& s) {
+    if (s.stack.top().getType() == Type::Float) {
+        float f = s.stack.pop().getFloat();
+        s.os() << f << '\n';
+    } else {
+        uint32_t i = s.getStack().pop().getData();
+        s.os() << i << '\n';
+    }
 }
 
 static void jmp(State& s) {
@@ -126,16 +174,25 @@ static void popa(State& s) {
         s.stack.push(std::move(stack.top()));
 }
 
+template <Type type>
 static void peek(State& s) {
     s.stack.at(s.fpstack.top() + s.stack.top(1) + 1)
-      = s.stack.at(s.fpstack.top() + s.stack.top() + 1);
+      = {type, s.stack.at(s.fpstack.top() + s.stack.top() + 1)};
     s.stack.pop(2);
 }
 
+template <Type type>
 static void poke(State& s) {
     s.stack.at(s.fpstack.top() + s.stack.top() + 1)
-      = s.stack.at(s.fpstack.top() + s.stack.top(1) + 1);
+      = {type, s.stack.at(s.fpstack.top() + s.stack.top(1) + 1)};
     s.stack.pop(2);
+}
+
+static void swp(State& s) {
+    Data first = s.stack.pop();
+    Data second = s.stack.pop();
+    s.stack.push(std::move(first));
+    s.stack.push(std::move(second));
 }
 
 InstructionHandler instructions[Last] = {
@@ -158,29 +215,31 @@ InstructionHandler instructions[Last] = {
     [Pushvc] = pushv<Type::Char>,
     [Pushvs] = pushv<Type::Short>,
     [Pushvi] = pushv<Type::Int>,
-    [Pushvf] = pushv<Type::Float>,
+    [Pushvf] = pushvf,
 
     [Popm] = popm,
     [Popv] = popv,
     [Popa] = popa,
 
-    [Peekc] = peek,
-    [Peeks] = peek,
-    [Peeki] = peek,
-    [Peekf] = peek,
+    [Peekc] = peek<Type::Char>,
+    [Peeks] = peek<Type::Short>,
+    [Peeki] = peek<Type::Int>,
+    [Peekf] = peek<Type::Float>,
 
-    [Pokec] = poke,
-    [Pokes] = poke,
-    [Pokei] = poke,
-    [Pokef] = poke,
+    [Pokec] = poke<Type::Char>,
+    [Pokes] = poke<Type::Short>,
+    [Pokei] = poke<Type::Int>,
+    [Pokef] = poke<Type::Float>,
 
-    [Add] = arithmetic<std::plus<Data>>,
-    [Sub] = arithmetic<std::minus<Data>>,
-    [Mul] = arithmetic<std::multiplies<Data>>,
-    [Div] = arithmetic<std::divides<Data>>,
+    [Swp] = swp,
+
+    [Add] = arithmetic<std::plus<float>, std::plus<uint32_t>>,
+    [Sub] = arithmetic<std::minus<float>, std::minus<uint32_t>>,
+    [Mul] = arithmetic<std::multiplies<float>, std::multiplies<uint32_t>>,
+    [Div] = arithmetic<std::divides<float>, std::divides<uint32_t>>,
 
     [Printc] = print<char>,
     [Prints] = print<short>,
     [Printi] = print<int>,
-    [Printf] = print<float>
+    [Printf] = printf
 };

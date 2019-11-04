@@ -19,11 +19,16 @@ enum class Type : uint32_t {
 
 class Data {
     Type type;
-    uint32_t data;
+    union {
+        uint32_t data;
+        float f;
+    };
 
 public:
     Data(uint32_t data = 0) : type(Type::Int), data(data) {}
     Data(Type type, uint32_t data = 0) : type(type), data(data) {}
+    Data(float f) : type(Type::Float), f(f) {}
+    Data(const Data&) = default;
 
     Type getType() const { return type; }
     uint32_t getData() const { return data; }
@@ -31,6 +36,9 @@ public:
     operator uint32_t() const {
         return data;
     }
+
+    float getFloat() const { return f; }
+    void setFloat(float o) {f = o;}
 
     bool operator==(Data other) const {
         return other.data == data;

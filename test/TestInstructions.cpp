@@ -125,9 +125,24 @@ TEST_F(InsT, Pushf) {
     remove("pushf.txt");
 }
 
+TEST_F(InsT, Pushf2) {
+    char arr[] = {0, 0, 0, 64};
+    std::ofstream outfile("pushf.txt");
+    outfile.write(arr, 4);
+    outfile.close();
+
+    State s("pushf.txt");
+    s.pc = 0;
+    instructions[Pushf](s);
+    EXPECT_EQ(s.stack.top().getType(), Type::Float);
+    float f = s.stack.top().getFloat();
+    EXPECT_EQ(2.0, f);
+    remove("pushf.txt");
+}
+
 TEST_F(InsT, Pushvc) {
     state.fpstack.push(0);
-    state.stack.push({17}).push({13}).push({0});
+    state.stack.push({Type::Int, 17}).push({Type::Int, 13}).push({Type::Int,0});
     state.pc = 0;
     instructions[Pushvc](state);
     EXPECT_EQ(state.stack.size(), 3);
@@ -140,7 +155,7 @@ TEST_F(InsT, Pushvc) {
 
 TEST_F(InsT, Pushvs) {
     state.fpstack.push(0);
-    state.stack.push({17}).push({13}).push({0});
+    state.stack.push({Type::Int, 17}).push({Type::Int, 13}).push({Type::Int, 0});
     state.pc = 0;
     instructions[Pushvs](state);
     EXPECT_EQ(state.stack.size(), 3);
@@ -149,7 +164,7 @@ TEST_F(InsT, Pushvs) {
 
 TEST_F(InsT, Pushvi) {
     state.fpstack.push(0);
-    state.stack.push({17}).push({13}).push({0});
+    state.stack.push({Type::Int, 17}).push({Type::Int, 13}).push({Type::Int, 0});
     state.pc = 0;
     instructions[Pushvi](state);
     EXPECT_EQ(state.stack.size(), 3);
@@ -158,10 +173,10 @@ TEST_F(InsT, Pushvi) {
 
 TEST_F(InsT, Pushvf) {
     state.fpstack.push(0);
-    state.stack.push({17}).push({13}).push({0});
+    state.stack.push({Type::Int, 17}).push({Type::Int, 13}).push({Type::Int, 0});
     instructions[Pushvf](state);
     EXPECT_EQ(state.stack.size(), 3);
-    EXPECT_EQ(state.stack.top().getType(), Type::Float);
+    EXPECT_EQ(state.stack.top().getType(), Type::Int);
 }
 
 TEST_F(InsT, Add) {
@@ -232,7 +247,7 @@ TEST_F(InsT, RetainType) {
     state.stack.push({Type::Float, 3});
     EXPECT_EQ(state.stack.size(), 3);
     instructions[Add](state);
-    EXPECT_EQ(state.stack.top().getType(), Type::Char);
+    ASSERT_EQ(state.stack.top().getType(), Type::Float);
     EXPECT_EQ(state.stack.size(), 2);
 }
 
@@ -311,7 +326,7 @@ TEST_F(InsT, Jmpc) {
 }
 
 TEST_F(InsT, Call) {
-    state.stack.push({16}).push({17}).push({1});
+    state.stack.push({Type::Int, 16}).push({Type::Int, 17}).push({Type::Int, 1});
 
     state.pc = 0;
     instructions[Call](state);
@@ -324,7 +339,7 @@ TEST_F(InsT, Call) {
 
 TEST_F(InsT, Ret) {
     state.fpstack.push(0);
-    state.stack.push({16});
+    state.stack.push({Type::Int, 16});
     state.pc = 52;
 
     instructions[Ret](state);
@@ -333,13 +348,13 @@ TEST_F(InsT, Ret) {
 }
 
 TEST_F(InsT, Popm) {
-    state.stack.push({1}).push({2}).push({3}).push({4}).push({1});
+    state.stack.push({Type::Int, 1}).push({Type::Int, 2}).push({Type::Int, 3}).push({Type::Int, 4}).push({Type::Int, 1});
 
     instructions[Popm](state);
     EXPECT_EQ(state.stack.size(), 3);
     EXPECT_EQ(state.stack.top().getData(), 3);
 
-    state.stack.push({2});
+    state.stack.push({Type::Int, 2});
     instructions[Popm](state);
     EXPECT_EQ(state.stack.size(), 1);
     EXPECT_EQ(state.stack.top().getData(), 1);
@@ -347,7 +362,7 @@ TEST_F(InsT, Popm) {
 
 TEST_F(InsT, Popv) {
     state.fpstack.push(0);
-    state.stack.push({1}).push({2}).push({3}).push({4}).push({1});
+    state.stack.push({Type::Int, 1}).push({Type::Int, 2}).push({Type::Int, 3}).push({Type::Int, 4}).push({Type::Int, 1});
 
     instructions[Popv](state);
     ASSERT_EQ(state.stack.size(), 3);
@@ -358,13 +373,13 @@ TEST_F(InsT, Popv) {
 
 TEST_F(InsT, Popa) {
     state.fpstack.push(0);
-    state.stack.push({26}).push({27}).push({0});
+    state.stack.push({Type::Int, 26}).push({Type::Int, 27}).push({Type::Int, 0});
 
     instructions[Popa](state);
     ASSERT_EQ(state.stack.size(), 1);
     EXPECT_EQ(state.stack.pop().getData(), 26);
 
-    state.stack.push({26}).push({27}).push({1});
+    state.stack.push({Type::Int, 26}).push({Type::Int, 27}).push({Type::Int, 1});
     instructions[Popa](state);
     ASSERT_EQ(state.stack.size(), 2);
     ASSERT_EQ(state.stack.pop().getData(), 27);
@@ -373,7 +388,7 @@ TEST_F(InsT, Popa) {
 
 TEST_F(InsT, Popa2) {
     state.fpstack.push(0);
-    state.stack.push({16}).push({0});
+    state.stack.push({Type::Int, 16}).push({Type::Int, 0});
 
     instructions[Popa](state);
     ASSERT_EQ(state.stack.size(), 1);
@@ -382,7 +397,7 @@ TEST_F(InsT, Popa2) {
 
 TEST_F(InsT, Peek) {
     state.fpstack.push(0);
-    state.stack.push({34}).push({3424}).push({3}).push({0}).push({1});
+    state.stack.push({Type::Int, 34}).push({Type::Int, 3424}).push({Type::Int, 3}).push({Type::Int, 0}).push({Type::Int, 1});
 
     instructions[Peekc](state);
     ASSERT_EQ(state.stack.size(), 3);
@@ -393,11 +408,20 @@ TEST_F(InsT, Peek) {
 
 TEST_F(InsT, Poke) {
     state.fpstack.push(0);
-    state.stack.push({34}).push({3424}).push({3}).push({0}).push({1});
+    state.stack.push({Type::Int, 34}).push({Type::Int, 3424}).push({Type::Int, 3}).push({Type::Int, 0}).push({Type::Int, 1});
 
     instructions[Pokec](state);
     ASSERT_EQ(state.stack.size(), 3);
     ASSERT_EQ(state.stack.pop().getData(), 3424);
     ASSERT_EQ(state.stack.pop().getData(), 3424);
     ASSERT_EQ(state.stack.pop().getData(), 34);
+}
+
+TEST_F(InsT, Swp) {
+    state.stack.push({Type::Int, 1}).push({Type::Int, 2});
+
+    instructions[Swp](state);
+    ASSERT_EQ(state.stack.size(), 2);
+    EXPECT_EQ(state.stack.pop().getData(), 1);
+    EXPECT_EQ(state.stack.pop().getData(), 2);
 }
